@@ -7,20 +7,32 @@ export const verifyToken=(req,res,next)=>{
     if(!token){
         return next(createError(401,"you are not authenticated!"));
     }
-    console.log("hello from jwt");
+    console.log("it is verified");
+   
     jwt.verify(token, process.env.JWT, (err, user) => {
         if(err) { 
             res.status(403).json('Token is not valid');
         } else { 
            req.user = user; 
+           
            next();
         }
       });
 }
 
 export const verifyUser=(req,res,next)=>{
-    verifyToken(req,res,()=>{
-        if(req.user.id===req.param.id || req.user.isAdmin){
+    verifyToken(req,res,next, ()=>{
+        if(req.user.id===req.params.id || req.user.isAdmin){
+            next()
+        }else{
+            if(err) return next(createError(403,"You are not authorized!"))
+        }
+    })
+}
+
+export const verifyAdmin=(req,res,next)=>{
+    verifyToken(req,res,next, ()=>{
+        if(req.user.isAdmin){
             next()
         }else{
             if(err) return next(createError(403,"You are not authorized!"))
